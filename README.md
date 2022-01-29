@@ -1,8 +1,6 @@
-# Welcome to GitHub Desktop!
+# Présentation des données
 
-This is your README. READMEs are where you can communicate what your project is and how to use it.
 
-Write your name on line 6, save it, and then head back to GitHub Desktop.
 
 
 # Chargements des librairies
@@ -27,10 +25,9 @@ streamHistory1 <- fromJSON("StreamingHistory1.json", flatten = TRUE)
 streamHistory <- rbind(streamHistory0,streamHistory1)
 myLibrary <- fromJSON("YourLibrary.json", flatten = TRUE)
 myLibrary <- data.frame(myLibrary$tracks)
-
 ```
 
-#Statistique descriptive
+# Statistique descriptive
 
 ```
 head(streamHistory)
@@ -46,9 +43,19 @@ glimpse(myLibrary)
 ```
 ![Screenshot_2](https://user-images.githubusercontent.com/90149200/151656721-aa7f3cb7-3057-41b1-a926-6ef9a218ebae.jpg)
 
+Nombre des chansons uniques que j'ai écouté pendant un an du 7/01/2021 à 7/01/2022
+ ```
+songs <- data.frame(unique(streamHistory$trackName))
+count(songs) #2309 chansons
+artists <- data.frame(unique(streamHistory$artistName))
+count(artists) #1151
+rm(songs, artists)
+```
+2309 chansons et 1151 artistes uniques sont identifiés.
+
 # Nettoyage
 
-Fusionner les deux variables qualitatives pour créer une variable ID et modifier les liens qui permettent l'accès aux chansons.
+Fusionner les deux variables qualitatives pour créer une variable ID. Je modifie également les liens web qui permettent l'accès aux chansons. On s'en servira par la suite pour créer un tableau de bord sur un logiciel de visualisation des données Tableau.
 ```
 myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, sep = ':')) %>% 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
@@ -58,4 +65,65 @@ myLibrary <- select(myLibrary, -uri)
 ```
 
 
+```
+str(streamHistory) #Date est un caractère 
+mySpotify <- streamHistory %>%
+  mutate(endTime = as.POSIXct(endTime)) %>%
+  mutate(date = floor_date(endTime, "day") %>% 
+           as_date, weekday = wday(date, label = TRUE), seconds = msPlayed / 1000, minutes = seconds / 60, hours = minutes/60)
+```
+
+```
+mySpotify <- data.frame(mySpotify) %>% mutate(ID = paste(mySpotify$artistName, mySpotify$trackName, sep = ':'))
+str(mySpotify)
+
+mySpotify <- mutate(date_hour = round_date(endTime,"hour"), mySpotify)
+glimpse(mySpotify)  
+
+data <- merge(x = mySpotify, y = myLibrary[,c('ID', 'URL')], by = 'ID', all.x = T)
+data <- data %>% mutate(hour = hour(date_hour)) %>% 
+  mutate(hour = as.character(hour))
+data <- data %>% mutate(hour = paste(hour, 'h' ))
+glimpse(data)
+
+
+
+data <- data %>% mutate(URL = ifelse(ID == 'Robbie Williams:Angels', 'https://open.spotify.com/embed/track/1M2nd8jNUkkwrc1dgBPTJz', 
+                                     ifelse(ID == 'Sara Lov:Fountain', 'https://open.spotify.com/embed/track/12xDGs4NYCsoNKdHYnoZZr', 
+                                          ifelse(ID == 'C. Tangana:Antes de Morirme (feat. ROSALÍA)', 'https://open.spotify.com/embed/track/4Dl8bEzhAEGbcwkQawS1XG', URL))))
+
+```
+
+
+```
+#Exportation de la base pour Tableau
+write.csv(data,"C:/Users/Inessa/Desktop/Portfolio Projects/my_spotify_data/mySpotify.csv")
+
+```
+
+
+# Construction des graphiques
+```
+# Playback hour 
+dayHour <- data %>% 
+  group_by(date, hour = hour(date_hour)) %>% 
+  summarize(hoursListened = sum(hours))
+
+```
+
+```
+#Graphique
+dayHour %>% 
+  ggplot(aes(x= hour, y= hoursListened, group = date)) +
+  geom_col(fill = "darkcyan") +
+  scale_fill_brewer(palette = 3) +
+  scale_x_continuous(breaks = seq(0, 24, 2)) +
+  scale_y_continuous(breaks = seq(0, 60, 5)) +
+  labs(title = "Mon activité sur Spotify pendant une journée", subtitle = "Activité de 0 à 24 heures") +
+  xlab("L'heure") +
+  ylab("Nombre d'heures") +
+  theme_gray()
+#Activité la plus elevée entre 16h et 18h
+
+```
 
