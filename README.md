@@ -43,7 +43,7 @@ myLibrary <- fromJSON("YourLibrary.json", flatten = TRUE)
 myLibrary <- data.frame(myLibrary$tracks)
 ```
 
-# Statistique descriptive
+# Inspection visuelle des données
 
 ```
 head(streamHistory)
