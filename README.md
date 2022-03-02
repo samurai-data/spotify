@@ -1,19 +1,30 @@
+# Présentation du projet
+Spotify est une plate-forme populaire de streaming musical développée en Suède. Du fait que cette plate-forme est pratiquement le seul biais par lequel j'écoute de la musique j'ai décidé de profiter de l'opportunité d'obtenir une copie de la plupart de mes données personnelles recueillies par ce service pour analyser mes habitudes musicales de l'année dernière (2021).
+
+Plan
+
+- Nettoyage des données obtenues
+- Visualisation graphique
+- Construction d'un tableau de bord dynamique sous Tableau
+- Tentative d'une analyse de classification (clustering) par la méthode de k-means
+
+
 # Présentation des données
 
-Acousticness: Une mesure de confiance de 0,0 à 1,0 indiquant si la piste est acoustique. 1.0 représente une confiance élevée que la piste est acoustique.
+-Acousticness: Une mesure de confiance de 0,0 à 1,0 indiquant si la piste est acoustique. 1.0 représente une confiance élevée que la piste est acoustique.
 
-Danceability: Danceability décrit à quel point une piste est appropriée pour la danse basée sur une combinaison d'éléments musicaux comprenant le tempo, la stabilité du rythme, la force du battement et la régularité générale. Une valeur de 0,0 est la moins dansable et 1,0 est la plus dansante.
+-Danceability: Danceability décrit à quel point une piste est appropriée pour la danse basée sur une combinaison d'éléments musicaux comprenant le tempo, la stabilité du rythme, la force du battement et la régularité générale. Une valeur de 0,0 est la moins dansable et 1,0 est la plus dansante.
 
-Énergie: L'énergie est une mesure de 0,0 à 1,0 et représente une mesure perceptive de l'intensité et de l'activité. En règle générale, les pistes énergiques sont rapides, bruyantes et bruyantes. Par exemple, le death metal a une énergie élevée, tandis qu'un prélude de Bach obtient un score bas sur l'échelle. Les caractéristiques perceptives contribuant à cet attribut comprennent la plage dynamique, le volume sonore perçu, le timbre, la fréquence d'apparition et l'entropie générale.
+-Énergie: L'énergie est une mesure de 0,0 à 1,0 et représente une mesure perceptive de l'intensité et de l'activité. En règle générale, les pistes énergiques sont rapides et bruyantes. Par exemple, le death metal a une énergie élevée, tandis qu'un prélude de Bach obtient un score bas sur l'échelle. Les caractéristiques perceptives contribuant à cet attribut comprennent la plage dynamique, le volume sonore perçu, le timbre, la fréquence d'apparition et l'entropie générale.
 
-Instrumentalité: Prédit si une piste ne contient pas de voix. Les morceaux de rap ou de mots parlés sont clairement «vocaux». Plus la valeur de l'instrument est proche de 1,0, plus la piste est susceptible de ne contenir aucun contenu vocal. Les valeurs supérieures à 0,5 sont destinées à représenter des pistes instrumentales, mais la confiance est plus élevée lorsque la valeur s'approche de 1,0.
-Vivacité: détecte la présence d'un public dans l'enregistrement. Des valeurs de vivacité plus élevées représentent une probabilité accrue que la piste ait été jouée en direct. Une valeur supérieure à 0,8 offre une forte probabilité que la piste soit en direct.
+-Instrumentalité: Prédit si une piste ne contient pas de voix. Les morceaux de rap ou de mots parlés sont clairement «vocaux». Plus la valeur de l'instrument est proche de 1,0, plus la piste est susceptible de ne contenir aucun contenu vocal. Les valeurs supérieures à 0,5 sont destinées à représenter des pistes instrumentales, mais la confiance est plus élevée lorsque la valeur s'approche de 1,
+-Vivacit: détecte la présence d'un public dans l'enregistrement. Des valeurs de vivacité plus élevées représentent une probabilité accrue que la piste ait été jouée en direct. Une valeur supérieure à 0,8 offre une forte probabilité que la piste soit en direct.
 
-Loudness: le volume global d'une piste en décibels (dB). Les valeurs de sonie sont moyennées sur toute la piste et sont utiles pour comparer le volume relatif des pistes. Le volume est la qualité d'un son qui est le principal corrélat psychologique de la force physique (amplitude). Les valeurs sont généralement comprises entre -60 et 0 db.
+-Loudness: le volume global d'une piste en décibels (dB). Les valeurs de sonie sont moyennées sur toute la piste et sont utiles pour comparer le volume relatif des pistes. Le volume est la qualité d'un son qui est le principal corrélat psychologique de la force physique (amplitude). Les valeurs sont généralement comprises entre -60 et 0 db.
 
-Speechiness: Speechiness détecte la présence de mots prononcés dans une piste. Plus l'enregistrement est exclusivement de type vocal (par exemple, talk-show, livre audio, poésie), plus la valeur d'attribut est proche de 1,0. Les valeurs supérieures à 0,66 décrivent des pistes qui sont probablement entièrement constituées de mots prononcés. Les valeurs comprises entre 0,33 et 0,66 décrivent des pistes qui peuvent contenir à la fois de la musique et de la parole, en sections ou en couches, y compris des cas tels que la musique rap. Les valeurs inférieures à 0,33 représentent très probablement de la musique et d'autres pistes non vocales.
+-Speechiness: Speechiness détecte la présence de mots prononcés dans une piste. Plus l'enregistrement est exclusivement de type vocal (par exemple, talk-show, livre audio, poésie), plus la valeur d'attribut est proche de 1,0. Les valeurs supérieures à 0,66 décrivent des pistes qui sont probablement entièrement constituées de mots prononcés. Les valeurs comprises entre 0,33 et 0,66 décrivent des pistes qui peuvent contenir à la fois de la musique et de la parole, en sections ou en couches, y compris des cas tels que la musique rap. Les valeurs inférieures à 0,33 représentent très probablement de la musique et d'autres pistes non vocales.
 
-Valence: Une mesure de 0,0 à 1,0 décrivant la positivité musicale véhiculée par une piste. Les pistes à valence élevée semblent plus positives (par exemple, joyeuses, gaies, euphoriques), tandis que les pistes à faible valence semblent plus négatives (par exemple, tristes, déprimés, en colère).
+-Valence: Une mesure de 0,0 à 1,0 décrivant la positivité musicale véhiculée par une piste. Les pistes à valence élevée semblent plus positives (par exemple, joyeuses, gaies, euphoriques), tandis que les pistes à faible valence semblent plus négatives (par exemple, tristes, déprimés, en colère).
 Tempo: Le tempo global estimé d'une piste en battements par minute (BPM). Dans la terminologie musicale, le tempo est la vitesse ou le rythme d'un morceau donné et dérive directement de la durée moyenne du battement.
 
 
