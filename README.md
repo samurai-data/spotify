@@ -17,18 +17,6 @@ Spotify est une plate-forme populaire de streaming musical développée en Suèd
 - Tableau Public pour la construction du tableau de bord
 
 
-## Chargements des librairies
-
-```
-library(jsonlite)
-library(lubridate)
-library(gghighlight)
-library(spotifyr)
-library(tidyverse)
-library(knitr)
-library(ggplot2)
-library(plotly)
-```
 
 ## Chargement des données
 
@@ -44,18 +32,12 @@ myLibrary <- data.frame(myLibrary$tracks)
 ## Inspection visuelle des données
 
 ```
-head(streamHistory)
-tail(streamHistory)
 glimpse(streamHistory)
-```
-![Screenshot_1](https://user-images.githubusercontent.com/90149200/151656358-810447d0-6938-4140-87c1-dc0557f7f6f1.jpg)
-
-```
-head(myLibrary)
-tail(myLibrary)
 glimpse(myLibrary)
 ```
-![Screenshot_2](https://user-images.githubusercontent.com/90149200/151656721-aa7f3cb7-3057-41b1-a926-6ef9a218ebae.jpg)
+![Screenshot_1](https://user-images.githubusercontent.com/90149200/156365077-b758c0f7-5a85-44c2-bd68-b6f0dba2f26f.jpg)
+![Screenshot_2](https://user-images.githubusercontent.com/90149200/156365108-7ba4ca8d-9dfb-4fea-9508-2c20a8027a4b.jpg)
+
 
 Nombre des chansons uniques que j'ai écouté pendant un an du 7/01/2021 à 7/01/2022
  ```
@@ -73,31 +55,32 @@ Fusionner les deux variables qualitatives pour créer une variable ID. Je modifi
 ```
 myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, sep = ':')) %>% 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
-  mutate(uri = sapply(uri, FUN = function(uri){substring(uri, regexpr('spotify:track:',uri) + 14, nchar(uri))}, USE.NAMES=FALSE) )
-myLibrary <- mutate(URL = paste(URL, uri, sep = ''), myLibrary)
-myLibrary <- select(myLibrary, -uri)
+  mutate(id = sapply(uri, FUN = function(uri){substring(uri, regexpr('spotify:track:',uri) + 14, nchar(uri))}, USE.NAMES=FALSE) )
+myLibrary <- mutate(URL = paste(URL, id, sep = ''), myLibrary)
+glimpse(myLibrary)
 ```
 
 
 ```
-str(streamHistory) #Date est un caractère 
+#Problème: Date est un caractère
+#On convertit alors cette variable en datetime
 mySpotify <- streamHistory %>%
   mutate(endTime = as.POSIXct(endTime)) %>%
   mutate(date = floor_date(endTime, "day") %>% 
-           as_date, weekday = wday(date, label = TRUE), seconds = msPlayed / 1000, minutes = seconds / 60, hours = minutes/60)
+           as_date, weekday = wday(date,label = T, week_start = getOption("lubridate.week.start", 1)), seconds = msPlayed / 1000, minutes = seconds / 60, hours = minutes/60)
 ```
 
 ```
-mySpotify <- data.frame(mySpotify) %>% mutate(ID = paste(mySpotify$artistName, mySpotify$trackName, sep = ':'))
-str(mySpotify)
-
+#Date avec l'heure arrondie
 mySpotify <- mutate(date_hour = round_date(endTime,"hour"), mySpotify)
-glimpse(mySpotify)  
+glimpse(mySpotify)
 
+#Fusionner les deux bases
 data <- merge(x = mySpotify, y = myLibrary[,c('ID', 'URL')], by = 'ID', all.x = T)
-data <- data %>% mutate(hour = hour(date_hour)) %>% 
-  mutate(hour = as.character(hour))
-data <- data %>% mutate(hour = paste(hour, 'h' ))
+#Extraire l'heure arrondie uniquement à partir de la variable 'date_hour' dans la base fusionnée
+data <- data %>% 
+  mutate(hour = as.character(hour(date_hour))) %>% 
+  mutate(hour = paste(hour, 'h' ))
 glimpse(data)
 
 
@@ -108,6 +91,30 @@ data <- data %>% mutate(URL = ifelse(ID == 'Robbie Williams:Angels', 'https://op
 
 ```
 
+```
+#Pour jeter on coup d'oeuil sur la base finale
+glimpse(data)
+```
+
+```
+#La je reviens après la construction de mon tableau de bord sur Tableau afin de faire qqs ajustements
+#Notamment rajouter manuellement les URL manquants nécessaires à la visualisation graphique
+data <- data %>% mutate(URL = ifelse(ID == 'Robbie Williams:Angels', 'https://open.spotify.com/embed/track/1M2nd8jNUkkwrc1dgBPTJz', 
+                                     ifelse(ID == 'Sara Lov:Fountain', 'https://open.spotify.com/embed/track/12xDGs4NYCsoNKdHYnoZZr', 
+                                            ifelse(ID == 'C. Tangana:Antes de Morirme (feat. ROSALÍA)', 'https://open.spotify.com/embed/track/4Dl8bEzhAEGbcwkQawS1XG', URL))))
+
+
+data <- data %>% mutate(artist_url = ifelse(artistName == 'The Lumineers', 'https://open.spotify.com/embed/artist/16oZKvXb6WkQlVAjwo2Wbg',
+                                   ifelse(artistName == 'Mika Newton', 'https://open.spotify.com/embed/artist/74EZBv1sl8tSXbttKYhAC0',
+                                          ifelse(artistName == 'Alai Oli', 'https://open.spotify.com/embed/artist/4snI0qikpQST1U1VWAxEY6',
+                                                 ifelse(artistName == 'Robbie Williams', 'https://open.spotify.com/embed/artist/2HcwFjNelS49kFbfvMxQYw',
+                                                        ifelse(artistName == 'Freakonomics Radio', '<https://open.spotify.com/embed/show/6z4NLXyHPga1UmSJsPK7G1',
+                                                               ifelse(artistName == 'Amaral', 'https://open.spotify.com/embed/artist/4OkeTQCk0fvX6VBYpOOxDi',
+                                                                      ifelse(artistName == 'Sara Lov', 'https://open.spotify.com/embed/artist/53qqj1ih4yfPRgUYtEJjVR',
+                                                                             ifelse(artistName == 'Ed Sheeran', 'https://open.spotify.com/embed/artist/6eUKZXaKkcviH0Ku9w2n3V',
+                                                                                    ifelse(artistName == 'Backstreet Boys', 'https://open.spotify.com/embed/artist/5rSXSAkZ67PYJSvpUpkOr7',
+                                                                                           ifelse(artistName == 'Paramore', 'https://open.spotify.com/embed/artist/74XFHRwlV6OrjEM0A2NCMF', NA )))))))))))
+```
 
 ```
 #Exportation de la base pour Tableau
