@@ -36,7 +36,21 @@ glimpse(streamHistory)
 glimpse(myLibrary)
 ```
 ![Screenshot_1](https://user-images.githubusercontent.com/90149200/156365077-b758c0f7-5a85-44c2-bd68-b6f0dba2f26f.jpg)
-![Screenshot_2](https://user-images.githubusercontent.com/90149200/156365108-7ba4ca8d-9dfb-4fea-9508-2c20a8027a4b.jpg)
+![Screenshot_2](https://user-images.githubusercontent.com/90149200/156729811-0fcbbef1-e092-49ec-b66a-ca30e2386ac1.jpg)
+
+#### Déscription des variables
+*streamingHistory* - historique de streaming:
+- endTime - la date et l'heure de fin d'écoute au format UTC
+- artistName - le nom du créateur de chaque élément écouté (par ex., le nom de l'artiste s'il s'agit d'un titre)
+- trackName - le nom des éléments écoutés
+- msPlayed - le nombre de millisecondes pendant lesquelles le titre a été écouté.
+
+*myLibrary* - bibliothèque (chansons aimées) :
+- artist - les créateurs
+- album - les noms des albums et émissions
+- track - les noms des entités
+- uri - les URI (Uniform Resource Identifiers) des éléments
+
 
 
 Nombre des chansons uniques que j'ai écouté pendant un an du 7/01/2021 à 7/01/2022
@@ -56,9 +70,11 @@ Fusionner les deux variables qualitatives pour créer une variable ID. Je modifi
 myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, sep = ':')) %>% 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
   mutate(id = sapply(uri, FUN = function(uri){substring(uri, regexpr('spotify:track:',uri) + 14, nchar(uri))}, USE.NAMES=FALSE) )
-myLibrary <- mutate(URL = paste(URL, id, sep = ''), myLibrary)
+myLibrary <- myLibrary %>% mutate(URL = paste(URL, id, sep = '')) %>%
+  select(,-c(uri,id))
 glimpse(myLibrary)
 ```
+![Screenshot_3](https://user-images.githubusercontent.com/90149200/156733512-baeddd89-72f7-4269-bd37-0bf46408816a.jpg)
 
 
 ```
