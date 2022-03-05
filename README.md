@@ -84,13 +84,15 @@ mySpotify <- streamHistory %>%
   mutate(endTime = as.POSIXct(endTime)) %>%
   mutate(date = floor_date(endTime, "day") %>% 
            as_date, weekday = wday(date,label = T, week_start = getOption("lubridate.week.start", 1)), seconds = msPlayed / 1000, minutes = seconds / 60, hours = minutes/60)
-```
 
-```
 #Date avec l'heure arrondie
 mySpotify <- mutate(date_hour = round_date(endTime,"hour"), mySpotify)
 glimpse(mySpotify)
+```
 
+![Screenshot_4](https://user-images.githubusercontent.com/90149200/156880599-12dbc178-03e1-4399-a0dc-c1ad01be6c26.jpg)
+
+```
 #Fusionner les deux bases
 data <- merge(x = mySpotify, y = myLibrary[,c('ID', 'URL')], by = 'ID', all.x = T)
 #Extraire l'heure arrondie uniquement à partir de la variable 'date_hour' dans la base fusionnée
@@ -98,19 +100,14 @@ data <- data %>%
   mutate(hour = as.character(hour(date_hour))) %>% 
   mutate(hour = paste(hour, 'h' ))
 glimpse(data)
-
-
-
-data <- data %>% mutate(URL = ifelse(ID == 'Robbie Williams:Angels', 'https://open.spotify.com/embed/track/1M2nd8jNUkkwrc1dgBPTJz', 
-                                     ifelse(ID == 'Sara Lov:Fountain', 'https://open.spotify.com/embed/track/12xDGs4NYCsoNKdHYnoZZr', 
-                                          ifelse(ID == 'C. Tangana:Antes de Morirme (feat. ROSALÍA)', 'https://open.spotify.com/embed/track/4Dl8bEzhAEGbcwkQawS1XG', URL))))
-
 ```
 
 ```
 #Pour jeter on coup d'oeuil sur la base finale
 glimpse(data)
 ```
+![Screenshot_5](https://user-images.githubusercontent.com/90149200/156881127-ccda5ba6-8560-47f1-ab9c-7499b24d687f.jpg)
+
 
 ```
 #La je reviens après la construction de mon tableau de bord sur Tableau afin de faire qqs ajustements
@@ -149,20 +146,93 @@ dayHour <- data %>%
 ```
 
 ```
-#Graphique
+#Bar plot
 dayHour %>% 
   ggplot(aes(x= hour, y= hoursListened, group = date)) +
   geom_col(fill = "darkcyan") +
   scale_fill_brewer(palette = 3) +
   scale_x_continuous(breaks = seq(0, 24, 2)) +
   scale_y_continuous(breaks = seq(0, 60, 5)) +
-  labs(title = "Mon activité sur Spotify pendant une journée", subtitle = "Activité de 0 à 24 heures") +
-  xlab("L'heure") +
-  ylab("Nombre d'heures") +
+  labs(title = "Evolution horaire de mon activité sur Spotify pendant une journée(24heures)", subtitle = "Mon activité sur Spotify en 2021") +
+  xlab("L'heure de la journée") +
+  ylab("Nombre d'heures ecoutées par an") +
   theme_gray()
 #Activité la plus elevée entre 16h et 18h
+```
+
+![Rplot](https://user-images.githubusercontent.com/90149200/156884676-f7338316-bd36-46ef-b599-560526d9c31a.jpeg)
+
 
 ```
+# QUEL JOUR DE LA SEMAINE ET À QUELLE HEURE J'AI ECOUTE DE LA MUSIQUE LE PLUS SOUVENT?
+#Préparation des données 
+weekHour <- data %>% 
+  group_by(weekday, hour=hour(date_hour)) %>% 
+  summarize(hours = sum(hours))
+
+# Heatmap
+heatmap <- weekHour%>%
+  ggplot(aes(x = hour, weekday, fill = hours)) + 
+  geom_tile() + 
+  scale_fill_gradient(low = "yellow", high = "red") +
+  labs(x= "L'heure de la journée", y= "Jour de la semaine") + labs(fill="Nombre d'heures par an") +
+  ggtitle("Mon activité horaire cumulée sur Spotify en 2021 par jour de la semaine et l'heure de la journée")
+heatmap
+
+```
+![Rplot01](https://user-images.githubusercontent.com/90149200/156884734-ef5cd466-37dd-42a8-bf73-7a87a3449b19.jpeg)
+
+
+```
+#EVOLUTION DE MON ACTIVITE SUR SPOTIFY 
+dayType <- weekHour %>% 
+  mutate(day_type = if_else(weekday %in% c("Sat", "Sun"), "Weekend", "Semaine")) %>% 
+  group_by(day_type, hour) %>% 
+  summarize(hours = sum(hours)) %>% 
+  ggplot(aes(x = hour, y = hours, color = day_type)) + 
+  geom_line() +
+  labs(x= "L'heure de la journée", y= "Nombre d'heures", color = '') + 
+  ggtitle("Evolution de mon activité sur Spotify en semaine et les weekends", "Mon activité sur Spotify en 2021") 
+dayType
+```
+![Rplot02](https://user-images.githubusercontent.com/90149200/156884883-0ee8e904-da5b-46f6-ad7c-774287dbcdd2.jpeg)
+
+
+```
+# LES ARTISTES LES PLUS ECOUTES (PLUS DE 4 HEURES)
+ArtistsMostListened <- data %>% 
+  group_by(artistName) %>% 
+  summarize(hours = sum(hours)) %>%
+  filter(hours > 5) %>%
+  ggplot(aes(x = artistName, y = hours)) + 
+  geom_col(aes(fill = hours)) +
+  scale_fill_gradient(low = "yellow", high = "red") + 
+  labs(x= "Artistes", y= "Nombre d'heures", fill = "Nombre d'heures") + 
+  ggtitle("Les artistes les plus ecoutés en 2021", "> 5 heures par an") +
+  theme(axis.text.x = element_text(angle = 90))
+ArtistsMostListened
+```
+![Rplot03](https://user-images.githubusercontent.com/90149200/156884863-81fa3b43-7120-4a80-bed0-16ed67576391.jpeg)
+
+```
+# LES CHANSONS LES PLUS ECOUTEES
+SongsMostListened <- data %>% 
+  group_by(trackName) %>% 
+  summarize(hours = sum(hours)) %>% 
+  filter(hours > 5) %>%
+  arrange(hours) %>%
+  mutate(trackName=factor(trackName, levels=trackName)) %>% 
+  ggplot(aes(x = trackName, y = hours)) + 
+  geom_col(fill = 'brown1' ) +
+  labs(x= "Chansons", y= "Nombre d'heures") + 
+  ggtitle("Les chansons les plus ecoutées en 2021?", "> 5 heures") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  coord_flip()
+SongsMostListened
+```
+
+![Rplot04](https://user-images.githubusercontent.com/90149200/156884960-d762ad84-df7d-4b86-b9e7-341b7d1fdc84.jpeg)
+
 
 ## Clustering
 
