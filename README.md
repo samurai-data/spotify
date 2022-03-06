@@ -13,8 +13,8 @@ Spotify est une plate-forme populaire de streaming musical développée en Suèd
 
 ###### Outils
 
-- R Studio pour le traitement et l'analyse de données
-- Tableau Public pour la construction du tableau de bord
+- *R Studio* pour le traitement et l'analyse de données
+- *Tableau Public* pour la construction du tableau de bord
 
 
 
@@ -29,7 +29,7 @@ myLibrary <- fromJSON("YourLibrary.json", flatten = TRUE)
 myLibrary <- data.frame(myLibrary$tracks)
 ```
 
-## Inspection visuelle des données
+## Inspection visuelle des base de données
 
 ```
 glimpse(streamHistory)
@@ -65,7 +65,7 @@ rm(songs, artists)
 
 # Nettoyage
 
-Fusionner les deux variables qualitatives pour créer une variable ID. Je modifie également les liens web qui permettent l'accès aux chansons. On s'en servira par la suite pour créer un tableau de bord sur un logiciel de visualisation des données Tableau.
+Je fusionne le nom de l'artiste et le titre de la chanson de chaque élément écouté pour créer une nouvelle variable *ID*. Je crée également la variable *URL* (les liens web qui permettent l'accès aux chansons sur Spotify) à partir de *uri*. On s'en servira par la suite pendant la construction du tableau de bord sur le logiciel de visualisation des données *Tableau*.
 ```
 myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, sep = ':')) %>% 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
@@ -77,9 +77,8 @@ glimpse(myLibrary)
 ![Screenshot_3](https://user-images.githubusercontent.com/90149200/156733512-baeddd89-72f7-4269-bd37-0bf46408816a.jpg)
 
 
+Les lignes du code suivant permettent d'effectuer les traitements nécessaires avec les dates. Notamment, le problème de type de données incorrect est réglé et la date ainsi que la date avec l'heure arrondie sont extraites. De plus, les mille seconds sont transformées en nombre d'heures.
 ```
-#Problème: Date est un caractère
-#On convertit alors cette variable en datetime
 mySpotify <- streamHistory %>%
   mutate(endTime = as.POSIXct(endTime)) %>%
   mutate(date = floor_date(endTime, "day") %>% 
@@ -92,8 +91,9 @@ glimpse(mySpotify)
 
 ![Screenshot_4](https://user-images.githubusercontent.com/90149200/156880599-12dbc178-03e1-4399-a0dc-c1ad01be6c26.jpg)
 
+
+La fusion de deux bases
 ```
-#Fusionner les deux bases
 data <- merge(x = mySpotify, y = myLibrary[,c('ID', 'URL')], by = 'ID', all.x = T)
 #Extraire l'heure arrondie uniquement à partir de la variable 'date_hour' dans la base fusionnée
 data <- data %>% 
