@@ -63,9 +63,9 @@ rm(songs, artists)
 ```
 2309 chansons et 1151 artistes uniques sont identifiés.
 
-# Nettoyage
+## Nettoyage
 
-Je fusionne le nom de l'artiste et le titre de la chanson de chaque élément écouté pour créer une nouvelle variable *ID*. Je crée également la variable *URL* (les liens web qui permettent l'accès aux chansons sur Spotify) à partir de *uri*. On s'en servira par la suite pendant la construction du tableau de bord sur le logiciel de visualisation des données *Tableau*.
+Je fusionne le nom de l'artiste et le titre de la chanson de chaque élément écouté pour créer une nouvelle variable *ID*. Je crée également la variable *URL* (les liens web qui permettent l'accès aux chansons sur Spotify) à partir de la variable *uri*. On s'en servira par la suite pendant la construction du tableau de bord sur le logiciel de visualisation des données *Tableau*.
 ```
 myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, sep = ':')) %>% 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
@@ -77,7 +77,7 @@ glimpse(myLibrary)
 ![Screenshot_3](https://user-images.githubusercontent.com/90149200/156733512-baeddd89-72f7-4269-bd37-0bf46408816a.jpg)
 
 
-Les lignes du code suivant permettent d'effectuer les traitements nécessaires avec les dates. Notamment, le problème de type de données incorrect est réglé et la date ainsi que la date avec l'heure arrondie sont extraites. De plus, les mille seconds sont transformées en nombre d'heures.
+Les lignes du code suivant permettent d'effectuer les traitements nécessaires avec les dates. Notamment, le problème de type de données incorrect est réglé et la date ainsi que la date avec l'heure arrondie sont extraites. De plus, les mille seconds sont converties en nombre d'heures.
 ```
 mySpotify <- streamHistory %>%
   mutate(endTime = as.POSIXct(endTime)) %>%
@@ -92,7 +92,7 @@ glimpse(mySpotify)
 ![Screenshot_4](https://user-images.githubusercontent.com/90149200/156880599-12dbc178-03e1-4399-a0dc-c1ad01be6c26.jpg)
 
 
-La fusion de deux bases
+Le code ci-dessous fusionne les deux bases. Le but est d'ajouter la variable URL à la base mySpotify.
 ```
 data <- merge(x = mySpotify, y = myLibrary[,c('ID', 'URL')], by = 'ID', all.x = T)
 #Extraire l'heure arrondie uniquement à partir de la variable 'date_hour' dans la base fusionnée
@@ -103,7 +103,7 @@ glimpse(data)
 ```
 
 ```
-#Pour jeter on coup d'oeuil sur la base finale
+#Pour jeter un coup d'œil sur la base finale
 glimpse(data)
 ```
 ![Screenshot_5](https://user-images.githubusercontent.com/90149200/156881127-ccda5ba6-8560-47f1-ab9c-7499b24d687f.jpg)
@@ -136,7 +136,7 @@ write.csv(data,"C:/Users/Inessa/Desktop/Portfolio Projects/my_spotify_data/mySpo
 ```
 
 
-# Construction des graphiques
+## Construction des graphiques
 ```
 # Playback hour 
 dayHour <- data %>% 
