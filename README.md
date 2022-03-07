@@ -109,9 +109,8 @@ glimpse(data)
 ![Screenshot_5](https://user-images.githubusercontent.com/90149200/156881127-ccda5ba6-8560-47f1-ab9c-7499b24d687f.jpg)
 
 
+La je reviens après la construction de mon tableau de bord sur Tableau afin de faire quelques ajustements. Notamment, rajouter manuellement les URL manquants nécessaires à la visualisation graphique.
 ```
-#La je reviens après la construction de mon tableau de bord sur Tableau afin de faire qqs ajustements
-#Notamment rajouter manuellement les URL manquants nécessaires à la visualisation graphique
 data <- data %>% mutate(URL = ifelse(ID == 'Robbie Williams:Angels', 'https://open.spotify.com/embed/track/1M2nd8jNUkkwrc1dgBPTJz', 
                                      ifelse(ID == 'Sara Lov:Fountain', 'https://open.spotify.com/embed/track/12xDGs4NYCsoNKdHYnoZZr', 
                                             ifelse(ID == 'C. Tangana:Antes de Morirme (feat. ROSALÍA)', 'https://open.spotify.com/embed/track/4Dl8bEzhAEGbcwkQawS1XG', URL))))
@@ -130,15 +129,16 @@ data <- data %>% mutate(artist_url = ifelse(artistName == 'The Lumineers', 'http
 ```
 
 ```
-#Exportation de la base pour Tableau
+#Exportation de la base finale pour Tableau
 write.csv(data,"C:/Users/Inessa/Desktop/Portfolio Projects/my_spotify_data/mySpotify.csv")
 
 ```
 
 
 ## Construction des graphiques
+Comment mon activité sur Spotify évolue pendant 24h en 2021?
 ```
-# Playback hour 
+# Préparation des données
 dayHour <- data %>% 
   group_by(date, hour = hour(date_hour)) %>% 
   summarize(hoursListened = sum(hours))
@@ -160,11 +160,11 @@ dayHour %>%
 #Activité la plus elevée entre 16h et 18h
 ```
 
-![Rplot](https://user-images.githubusercontent.com/90149200/156884676-f7338316-bd36-46ef-b599-560526d9c31a.jpeg)
+![Screenshot_9](https://user-images.githubusercontent.com/90149200/157016475-0378d7c7-ff22-4230-9a3d-f30c86893c3f.jpg)
 
 
+Quel jour de la semaine et à quelle heure j'écoute de la musique le plus souvent en 2021?
 ```
-# QUEL JOUR DE LA SEMAINE ET À QUELLE HEURE J'AI ECOUTE DE LA MUSIQUE LE PLUS SOUVENT?
 #Préparation des données 
 weekHour <- data %>% 
   group_by(weekday, hour=hour(date_hour)) %>% 
@@ -180,7 +180,8 @@ heatmap <- weekHour%>%
 heatmap
 
 ```
-![Rplot01](https://user-images.githubusercontent.com/90149200/156884734-ef5cd466-37dd-42a8-bf73-7a87a3449b19.jpeg)
+
+![Screenshot_8](https://user-images.githubusercontent.com/90149200/157016324-3c2fd171-2363-4ddb-8634-8969db773b0e.jpg)
 
 
 ```
@@ -195,7 +196,9 @@ dayType <- weekHour %>%
   ggtitle("Evolution de mon activité sur Spotify en semaine et les weekends", "Mon activité sur Spotify en 2021") 
 dayType
 ```
-![Rplot02](https://user-images.githubusercontent.com/90149200/156884883-0ee8e904-da5b-46f6-ad7c-774287dbcdd2.jpeg)
+
+
+![Screenshot_7](https://user-images.githubusercontent.com/90149200/157016091-b1348cbe-6338-4a75-b8e1-0bd0a6a0107c.jpg)
 
 
 ```
@@ -212,7 +215,9 @@ ArtistsMostListened <- data %>%
   theme(axis.text.x = element_text(angle = 90))
 ArtistsMostListened
 ```
-![Rplot03](https://user-images.githubusercontent.com/90149200/156884863-81fa3b43-7120-4a80-bed0-16ed67576391.jpeg)
+
+![Screenshot_6](https://user-images.githubusercontent.com/90149200/157015957-05d7c252-abe9-42ca-8f77-4b3018587a92.jpg)
+
 
 ```
 # LES CHANSONS LES PLUS ECOUTEES
@@ -231,7 +236,8 @@ SongsMostListened <- data %>%
 SongsMostListened
 ```
 
-![Rplot04](https://user-images.githubusercontent.com/90149200/156884960-d762ad84-df7d-4b86-b9e7-341b7d1fdc84.jpeg)
+![Screenshot_10](https://user-images.githubusercontent.com/90149200/157016687-2ea07f4f-20f9-4c10-9050-6f5eb550a73a.jpg)
+
 
 
 ## Clustering
