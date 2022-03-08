@@ -9,7 +9,7 @@ Spotify est une plate-forme populaire de streaming musical développée en Suèd
 - Nettoyage des données obtenues
 - Visualisation graphique
 - Construction d'un tableau de bord dynamique
-- Tentative d'une analyse de classification (clustering) par la méthode de k-means
+- Tentative d'une analyse de clustering par la méthode de k-means
 
 ###### Outils
 
@@ -29,7 +29,7 @@ myLibrary <- fromJSON("YourLibrary.json", flatten = TRUE)
 myLibrary <- data.frame(myLibrary$tracks)
 ```
 
-## Inspection visuelle des base de données
+## Inspection visuelle des bases de données
 
 ```
 glimpse(streamHistory)
@@ -185,7 +185,7 @@ heatmap
 
 
 ```
-#EVOLUTION DE MON ACTIVITE SUR SPOTIFY 
+#Line chart 
 dayType <- weekHour %>% 
   mutate(day_type = if_else(weekday %in% c("Sat", "Sun"), "Weekend", "Semaine")) %>% 
   group_by(day_type, hour) %>% 
@@ -202,7 +202,7 @@ dayType
 
 
 ```
-# LES ARTISTES LES PLUS ECOUTES (PLUS DE 4 HEURES)
+# LES ARTISTES LES PLUS ECOUTES (PLUS DE 5 HEURES)
 ArtistsMostListened <- data %>% 
   group_by(artistName) %>% 
   summarize(hours = sum(hours)) %>%
@@ -220,7 +220,7 @@ ArtistsMostListened
 
 
 ```
-# LES CHANSONS LES PLUS ECOUTEES
+# LES CHANSONS LES PLUS ECOUTEES (PLUS DE 5 HEURES)
 SongsMostListened <- data %>% 
   group_by(trackName) %>% 
   summarize(hours = sum(hours)) %>% 
@@ -240,9 +240,14 @@ SongsMostListened
 
 
 
-## Clustering
+## Clustering K-means
 
-###### Présentation des variables choisies pour l'analyse
+Clustering est une méthode de classification automatique dont le but est de créer des groupes (clusters) d'observations homogènes de sorte que les observations au sein d’un groupe soient les plus semblables possibles, alors que les groupes soient les plus différents possibles les uns des autres. Pour ce faire la méthode de K-means sera appliquée afin de réaliser cette analyse. Son objectif est d'analyser la musique que j'écoute selon les caractéristiques audio de mes chansons préférées. Un échantillon représentatif sera crée à partir de deux bases de données disponibles que j'utilisais jusqu'à maintenant. 
+
+L'algorithme de K-means repose sur la notion de distances entre observations. 
+
+
+###### Présentation des variables sélectionnées pour l'analyse
 
 - **Acousticness**: Une mesure de confiance de 0,0 à 1,0 indiquant si la piste est acoustique. 1.0 représente une confiance élevée que la piste est acoustique.
 - **Danceability**: Danceability décrit à quel point une piste est appropriée pour la danse basée sur une combinaison d'éléments musicaux comprenant le tempo, la stabilité du rythme, la force du battement et la régularité générale. Une valeur de 0,0 est la moins dansable et 1,0 est la plus dansante.
