@@ -71,10 +71,11 @@ myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
   mutate(id = sapply(uri, FUN = function(uri){substring(uri, regexpr('spotify:track:',uri) + 14, nchar(uri))}, USE.NAMES=FALSE) )
 myLibrary <- myLibrary %>% mutate(URL = paste(URL, id, sep = '')) %>%
-  select(,-c(uri,id))
+  select(,-c(uri))
 glimpse(myLibrary)
 ```
-![Screenshot_3](https://user-images.githubusercontent.com/90149200/156733512-baeddd89-72f7-4269-bd37-0bf46408816a.jpg)
+
+![Screenshot_11](https://user-images.githubusercontent.com/90149200/157263762-518ddcac-c265-4f6c-aac7-d124c03e0423.jpg)
 
 
 Les lignes du code suivant permettent d'effectuer les traitements nécessaires avec les dates. Notamment, le problème de type de données incorrect est réglé et la date ainsi que la date avec l'heure arrondie sont extraites. De plus, les mille seconds sont converties en nombre d'heures.
@@ -246,6 +247,71 @@ Clustering est une méthode de classification automatique dont le but est de cr�
 
 L'algorithme de K-means repose sur la notion de distances entre observations. 
 
+```
+#OBTENIR LES CARACTERISTIQUES AUDIO DES CHANSONS DE MA LIBRARIE  
+#La fonction get_track_audio_features ne marche que pour une base de données limitée à 100 observations
+#La base myLibrary contenant 383 chansons est alors répartie en 4 bases de 100 chansons 
+dt <- myLibrary[c(1:100),]
+dt2 <- myLibrary[c(101:200),]
+dt3<- myLibrary[c(201:300),]
+dt4 <- myLibrary[c(301:383),]
+
+
+dat <- get_track_audio_features(dt$id, get_spotify_access_token())
+dat2  <- get_track_audio_features(dt2$id, get_spotify_access_token())
+dat3  <- get_track_audio_features(dt3$id, get_spotify_access_token())
+dat4  <- get_track_audio_features(dt4$id, get_spotify_access_token())
+
+features <- rbind(dat, dat2, dat3, dat4) %>% as_tibble()
+rm(dt, dt2, dt3, dt4, dat, dat2, dat3, dat4)
+
+features <- merge(myLibrary[,c('ID','id')],features[,c('danceability', 'energy', 'loudness',
+                                                       'speechiness','acousticness', 'instrumentalness', 
+                                                       'liveness', 'valence', 'tempo', 'id')])
+#383
+```
+
+```
+#Préparation de l'échantillon pour clustering
+#Tant que je ne dispose pas les ID dans mon streamingHistory
+#càd dans la base avec toutes les chansons que j'ai écouté pendant un an, je vais créer une nouvelle base pour l'analyse. 
+#Je vais utiliser ma librairie Spotify et vais rajouter 
+#quelques playlists les plus écoutés pour élargir la taille de l'échantilon. 
+
+playlist_uris = c('2EyrMzdCEzrJZroVISvpeH', '1Q5ShmHUpMqgMMsiYeSlnv', '21FgZfWciibMrQJUHAaDnM','37i9dQZF1DX2oc5aN4UDfD', '1rPzZa9xevryBnc5TKEcd1', '37i9dQZF1DWTwnEm1IYyoj', '37i9dQZF1DWUH2AzNQzWua', '37i9dQZF1DZ06evO0AGqf6')
+new_features <- get_playlist_audio_features(username = '21fpb4vqdeiicsqeug75tiuta',playlist_uris)
+#332 chansons
+
+
+new_features <- new_features %>% filter(track.name %in% data$trackName)                                                
+#151
+
+new_features <- new_features[,c('track.artists','track.name', 'track.id',
+                                'danceability', 'energy', 'loudness','speechiness','acousticness', 'instrumentalness','liveness', 'valence', 'tempo')]
+
+glimpse(new_features)
+
+
+playlists_features = new_features %>% 
+  mutate(track.artists=sapply(new_features$track.artists,'[[',3)) %>%
+  mutate(ID = paste(track.artists, track.name, sep = ':')) %>%
+  select(,-c(track.artists, track.name)) %>%
+  relocate(ID, .after=track.id) %>%
+  rename('id' = 'track.id')
+
+df_features <- rbind(features, playlists_features) #529
+duplicated(df_features)
+df_features <- unique(df_features) #504
+
+plot(df_clustering_scaled$danceability, df_clustering_scaled$loudness)
+plot(df_clustering_scaled$instrumentalness, df_clustering_scaled$tempo)
+
+glimpse(df_features)
+
+df_clustering <- df_features[,c(3:11)] #on exclut id et ID pour selectionner que les variables quanti
+
+head(df_clustering)
+```
 
 ###### Présentation des variables sélectionnées pour l'analyse
 
