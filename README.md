@@ -243,14 +243,15 @@ SongsMostListened
 
 ## Clustering K-means
 
-Clustering est une méthode de classification automatique dont le but est de créer des groupes (clusters) d'observations homogènes de sorte que les observations au sein d’un groupe soient les plus semblables possibles, alors que les groupes soient les plus différents possibles les uns des autres. Pour ce faire la méthode de K-means sera appliquée afin de réaliser cette analyse. Son objectif est d'analyser la musique que j'écoute selon les caractéristiques audio de mes chansons préférées. Un échantillon représentatif sera crée à partir de deux bases de données disponibles que j'utilisais jusqu'à maintenant. 
+Clustering est une méthode de classification automatique dont le but est de créer des groupes (clusters) d'observations homogènes de sorte que les observations au sein d’un groupe soient les plus semblables possibles, alors que les groupes soient les plus différents possibles les uns des autres. 
+Dans le cadre de ce projet l'objectif de clustering est d'analyser la musique que j'écoute selon les caractéristiques audio de mes chansons préférées. Pour ce faire un échantillon représentatif sera crée principalement à partir de ma bibliothèque Spotify *myLibrary* i.e. chansons aimées. 
 
-L'algorithme de K-means repose sur la notion de distances entre observations. 
+Parmi les deux algorithmes de clustering les plus connus (k-means et classification hiérarchique) je recours à l'algorithme de K-means afin de réaliser cette analyse. Celui-ci repose sur la notion de distances entre observations. 
 
+###### Préparation de l'échantillon
+D'abord, il faut obtenir les variables nécessaires, càd les caractéristiques audio des pistes qui se trouvent dans ma bibliothèque.
+La fonction get_track_audio_features ne marche que pour une base de données limitée à 100 observations. La base de données *myLibrary* contenant 383 chansons est alors répartie en 4 tables. Ensuite, après avoir obtenu toutes les variables nécessaires 
 ```
-#OBTENIR LES CARACTERISTIQUES AUDIO DES CHANSONS DE MA LIBRARIE  
-#La fonction get_track_audio_features ne marche que pour une base de données limitée à 100 observations
-#La base myLibrary contenant 383 chansons est alors répartie en 4 bases de 100 chansons 
 dt <- myLibrary[c(1:100),]
 dt2 <- myLibrary[c(101:200),]
 dt3<- myLibrary[c(201:300),]
@@ -268,16 +269,13 @@ rm(dt, dt2, dt3, dt4, dat, dat2, dat3, dat4)
 features <- merge(myLibrary[,c('ID','id')],features[,c('danceability', 'energy', 'loudness',
                                                        'speechiness','acousticness', 'instrumentalness', 
                                                        'liveness', 'valence', 'tempo', 'id')])
-#383
 ```
 
-```
-#Préparation de l'échantillon pour clustering
-#Tant que je ne dispose pas les ID dans mon streamingHistory
-#càd dans la base avec toutes les chansons que j'ai écouté pendant un an, je vais créer une nouvelle base pour l'analyse. 
-#Je vais utiliser ma librairie Spotify et vais rajouter 
-#quelques playlists les plus écoutés pour élargir la taille de l'échantilon. 
 
+
+Je rajoute manuellement à la base destinée pour l'analyse de clustering quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. 
+
+```
 playlist_uris = c('2EyrMzdCEzrJZroVISvpeH', '1Q5ShmHUpMqgMMsiYeSlnv', '21FgZfWciibMrQJUHAaDnM','37i9dQZF1DX2oc5aN4UDfD', '1rPzZa9xevryBnc5TKEcd1', '37i9dQZF1DWTwnEm1IYyoj', '37i9dQZF1DWUH2AzNQzWua', '37i9dQZF1DZ06evO0AGqf6')
 new_features <- get_playlist_audio_features(username = '21fpb4vqdeiicsqeug75tiuta',playlist_uris)
 #332 chansons
@@ -290,8 +288,9 @@ new_features <- new_features[,c('track.artists','track.name', 'track.id',
                                 'danceability', 'energy', 'loudness','speechiness','acousticness', 'instrumentalness','liveness', 'valence', 'tempo')]
 
 glimpse(new_features)
-
-
+```
+J'applique un filtre afin de selectionner que les si Ainsi, parmi les 332 chansons j'ai pu ajouter 151 observations (chansons).
+```
 playlists_features = new_features %>% 
   mutate(track.artists=sapply(new_features$track.artists,'[[',3)) %>%
   mutate(ID = paste(track.artists, track.name, sep = ':')) %>%
