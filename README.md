@@ -250,7 +250,7 @@ Parmi les deux algorithmes de clustering les plus connus (k-means et classificat
 
 ###### Préparation de l'échantillon
 D'abord, il faut obtenir les variables nécessaires, càd les caractéristiques audio des pistes qui se trouvent dans ma bibliothèque.
-La fonction get_track_audio_features ne marche que pour une base de données limitée à 100 observations. La base de données *myLibrary* contenant 383 chansons est alors répartie en 4 tables. Ensuite, après avoir obtenu toutes les variables nécessaires 
+Tant que la fonction *get_track_audio_features* ne fonctionne que pour une base de données limitée à 100 observations, la base de données *myLibrary* contenant 383 chansons est alors répartie en 4 tables. Ensuite, après avoir obtenu toutes les variables nécessaires 
 ```
 dt <- myLibrary[c(1:100),]
 dt2 <- myLibrary[c(101:200),]
@@ -273,7 +273,7 @@ features <- merge(myLibrary[,c('ID','id')],features[,c('danceability', 'energy',
 
 
 
-Je rajoute manuellement à la base destinée pour l'analyse de clustering quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. 
+Puis, je rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui sont également dans mon historique de streaming. Ainsi, parmi les 332 morceaux retrouvés dans les playlists j'ai pu ajouter 151 observations (chansons).
 
 ```
 playlist_uris = c('2EyrMzdCEzrJZroVISvpeH', '1Q5ShmHUpMqgMMsiYeSlnv', '21FgZfWciibMrQJUHAaDnM','37i9dQZF1DX2oc5aN4UDfD', '1rPzZa9xevryBnc5TKEcd1', '37i9dQZF1DWTwnEm1IYyoj', '37i9dQZF1DWUH2AzNQzWua', '37i9dQZF1DZ06evO0AGqf6')
@@ -289,7 +289,7 @@ new_features <- new_features[,c('track.artists','track.name', 'track.id',
 
 glimpse(new_features)
 ```
-J'applique un filtre afin de selectionner que les si Ainsi, parmi les 332 chansons j'ai pu ajouter 151 observations (chansons).
+Je termine la préparation de la base destinée à l'analyse par quelques manipulations de nettoyage de données. 
 ```
 playlists_features = new_features %>% 
   mutate(track.artists=sapply(new_features$track.artists,'[[',3)) %>%
@@ -299,11 +299,10 @@ playlists_features = new_features %>%
   rename('id' = 'track.id')
 
 df_features <- rbind(features, playlists_features) #529
+```
+```
 duplicated(df_features)
 df_features <- unique(df_features) #504
-
-plot(df_clustering_scaled$danceability, df_clustering_scaled$loudness)
-plot(df_clustering_scaled$instrumentalness, df_clustering_scaled$tempo)
 
 glimpse(df_features)
 
