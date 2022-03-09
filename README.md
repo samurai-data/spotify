@@ -1,5 +1,5 @@
 # Analyse de données Spotify
-
+> Emmanuel Kant : « La musique est la langue des émotions »
 
 ## Présentation du projet
 Spotify est une plate-forme populaire de streaming musical développée en Suède. Du fait que cette plate-forme est pratiquement le seul biais par lequel j'écoute de la musique j'ai décidé de profiter de l'opportunité d'obtenir une copie de la plupart de mes données personnelles recueillies par ce service pour analyser mes habitudes musicales de l'année dernière (2021).
@@ -8,7 +8,7 @@ Spotify est une plate-forme populaire de streaming musical développée en Suèd
  
 - Nettoyage des données obtenues
 - Visualisation graphique
-- Construction d'un tableau de bord dynamique
+- Construction d'[un tableau de bord dynamique](https://public.tableau.com/app/profile/inessa7042/viz/SpotifyViz_16429507843540/Dashboard1)
 - Tentative d'une analyse de clustering par la méthode de k-means
 
 ###### Outils
