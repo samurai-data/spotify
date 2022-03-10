@@ -63,7 +63,7 @@ rm(songs, artists)
 ```
 2309 chansons et 1151 artistes uniques sont identifiés.
 
-## Nettoyage
+## Nettoyage et d'autres opérations de traitement des données
 
 Je fusionne le nom de l'artiste et le titre de la chanson de chaque élément écouté pour créer une nouvelle variable *ID*. Je crée également la variable *URL* (les liens web qui permettent l'accès aux chansons sur Spotify) à partir de la variable *uri*. On s'en servira par la suite pendant la construction du tableau de bord sur le logiciel de visualisation des données *Tableau*.
 ```
@@ -324,15 +324,15 @@ features <- merge(myLibrary[,c('ID','id')],features[,c('danceability', 'energy',
 
 
 
-Ensuite, on rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui sont également dans mon historique de streaming. Ainsi, parmi les 332 morceaux retrouvés dans les playlists j'ai pu ajouter 151 observations (chansons).
+Ensuite, on rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui sont également dans mon historique de streaming. Ainsi, parmi les 332 morceaux retrouvés dans les playlists j'ai pu ajouter 150 observations (chansons).
 
 ```
 playlist_uris = c('2EyrMzdCEzrJZroVISvpeH', '1Q5ShmHUpMqgMMsiYeSlnv', '21FgZfWciibMrQJUHAaDnM','37i9dQZF1DX2oc5aN4UDfD', '1rPzZa9xevryBnc5TKEcd1', '37i9dQZF1DWTwnEm1IYyoj', '37i9dQZF1DWUH2AzNQzWua', '37i9dQZF1DZ06evO0AGqf6')
 new_features <- get_playlist_audio_features(username = '21fpb4vqdeiicsqeug75tiuta',playlist_uris)
-#332 chansons
+#331 chansons
 
 
-new_features <- new_features %>% filter(track.name %in% data$trackName) #151
+new_features <- new_features %>% filter(track.name %in% data$trackName) #150
 
 new_features <- new_features[,c('track.artists','track.name', 'track.id',
                                 'danceability', 'energy', 'loudness','speechiness','acousticness', 'instrumentalness','liveness', 'valence', 'tempo')]
@@ -342,7 +342,7 @@ glimpse(new_features)
 ![Screenshot_21](https://user-images.githubusercontent.com/90149200/157696204-5683d64f-8b0f-42d4-99c2-f92b8bb8deec.jpg)
 
 
-Je termine la préparation de la base destinée à l'analyse de clustering par quelques manipulations de nettoyage de données. 
+Je termine la préparation de la base destinée à l'analyse de clustering par quelques manipulations du traitement des données. 
 ```
 playlists_features = new_features %>% 
   mutate(track.artists=sapply(new_features$track.artists,'[[',3)) %>%
@@ -351,19 +351,35 @@ playlists_features = new_features %>%
   relocate(ID, .after=track.id) %>%
   rename('id' = 'track.id')
 
-df_features <- rbind(features, playlists_features) #532
+df_features <- rbind(features, playlists_features) #533
 ```
-
 ![Screenshot_19](https://user-images.githubusercontent.com/90149200/157639209-4d7443eb-6a65-46ba-9b2c-24f2783b4379.jpg)
 
+
+Après avoir détecté la présence des doublons on les retire. De plus, On exclut les variables id et ID dans le but d'isoler les variables quantitatives pour l'analyse.
 ```
+#éliminer les doublons
 duplicated(df_features)
 df_features <- unique(df_features) #504
 
-glimpse(df_features)
-
-df_clustering <- df_features[,c(3:11)] #on exclut id et ID pour selectionner que les variables quanti
+#sélectionner les variables quantitatives
+df_clustering <- df_features[,c(3:11)]
 
 head(df_clustering)
 ```
+![Screenshot_22](https://user-images.githubusercontent.com/90149200/157744600-f50155fd-5319-4af0-97c1-c2d11baa4c7b.jpg)
+
+
+Maintenant on doit vérifier si les données manquantes sont présentes 
+```
+#Vérifier la présence des données manquantes
+colSums(is.na(df_clustering))
+#Matrice de corrélation
+cor = cor(df_clustering)
+#corrélogramme pour visualiser la matrice de corrélation
+library(corrplot)
+corrplot(cor, method = 'color') 
+```
+
+![Screenshot_24](https://user-images.githubusercontent.com/90149200/157746077-6157cf3b-58a5-4926-ab24-d59f1ae73b97.jpg)
 
