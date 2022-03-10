@@ -161,7 +161,8 @@ dayHour %>%
 #Activité la plus elevée entre 16h et 18h
 ```
 
-![Screenshot_9](https://user-images.githubusercontent.com/90149200/157016475-0378d7c7-ff22-4230-9a3d-f30c86893c3f.jpg)
+![Screenshot_17](https://user-images.githubusercontent.com/90149200/157633706-b4a22b5d-a366-4541-916e-d6705fe63087.jpg)
+
 
 
 Quel jour de la semaine et à quelle heure j'écoute de la musique le plus souvent en 2021?
@@ -182,7 +183,8 @@ heatmap
 
 ```
 
-![Screenshot_8](https://user-images.githubusercontent.com/90149200/157016324-3c2fd171-2363-4ddb-8634-8969db773b0e.jpg)
+![Screenshot_16](https://user-images.githubusercontent.com/90149200/157633746-d751872f-687c-435b-934a-140b48143eb5.jpg)
+
 
 
 ```
@@ -198,8 +200,8 @@ dayType <- weekHour %>%
 dayType
 ```
 
+![Screenshot_15](https://user-images.githubusercontent.com/90149200/157633211-6c490aa4-bbac-4dba-8639-d579cf96fa09.jpg)
 
-![Screenshot_7](https://user-images.githubusercontent.com/90149200/157016091-b1348cbe-6338-4a75-b8e1-0bd0a6a0107c.jpg)
 
 
 ```
@@ -217,7 +219,8 @@ ArtistsMostListened <- data %>%
 ArtistsMostListened
 ```
 
-![Screenshot_6](https://user-images.githubusercontent.com/90149200/157015957-05d7c252-abe9-42ca-8f77-4b3018587a92.jpg)
+
+![Screenshot_18](https://user-images.githubusercontent.com/90149200/157634008-7c74b0b0-d0a9-4baa-8621-d1be02dd5784.jpg)
 
 
 ```
@@ -237,8 +240,40 @@ SongsMostListened <- data %>%
 SongsMostListened
 ```
 
-![Screenshot_10](https://user-images.githubusercontent.com/90149200/157016687-2ea07f4f-20f9-4c10-9050-6f5eb550a73a.jpg)
+![Screenshot_14](https://user-images.githubusercontent.com/90149200/157632885-a661933f-d1f9-4f25-8576-cb45f18e256e.jpg)
 
+
+```
+# Etablir la connexion spotify API afin d'obtenir le code d'autorisation
+Sys.setenv(SPOTIFY_CLIENT_ID = '40798829f9cf4e028eea17da9f299abe')
+Sys.setenv(SPOTIFY_CLIENT_SECRET ='b14ce5c852de4975b20683b0c373393f')
+get_spotify_authorization_code()
+
+favArtist1 <- get_artist_audio_features('The Lumineers')
+favArtist2 <- get_artist_audio_features('Robbie Williams')
+favArtist3 <- get_artist_audio_features('Mika Newton')
+favArtist4 <- get_artist_audio_features('Alai Oli')
+
+topFourArtists <- rbind(favArtist1, favArtist2, favArtist3, favArtist4)
+
+# PLOT EMOTIONAL QUADRANT TOP FOUR ARTISTS
+emotionalQuadrant <- ggplot(data = topFourArtists, aes(x = valence, y = energy, color = artist_name)) +
+  geom_jitter() +
+  geom_vline(xintercept = 0.5) +
+  geom_hline(yintercept = 0.5) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  annotate('text', 0.25 / 2, 0.95, label = "Turbulent & Pessimiste") +
+  annotate('text', 1.75 / 2, 0.95, label = "Joyeux & Energique") +
+  annotate('text', 1.75 / 2, 0.05, label = "Calme & Optimiste") +
+  annotate('text', 0.25 / 2, 0.05, label = "Depressif & Triste") +
+  labs(x= "Valence", y= "Energie") +
+  ggtitle("Quadrant emotionnel Top quatre artistes", "Basée sur énergie et valence")  
+emotionalQuadrant
+
+```
+
+![Screenshot_13](https://user-images.githubusercontent.com/90149200/157632574-6d78b4b0-648c-4492-a23d-00d2556a68bb.jpg)
 
 
 ## Clustering K-means
