@@ -104,13 +104,13 @@ glimpse(data)
 ```
 
 ```
-#Pour jeter un coup d'œil sur la base finale
+#On jete un coup d'œil sur la base finale
 glimpse(data)
 ```
 ![Screenshot_5](https://user-images.githubusercontent.com/90149200/156881127-ccda5ba6-8560-47f1-ab9c-7499b24d687f.jpg)
 
 
-La je reviens après la construction de mon tableau de bord sur Tableau afin de faire quelques ajustements. Notamment, rajouter manuellement les URL manquants nécessaires à la visualisation graphique.
+Là je reviens après la construction de mon tableau de bord sur Tableau afin de faire quelques ajustements. Notamment, rajouter manuellement les URL manquants nécessaires à la visualisation graphique.
 ```
 data <- data %>% mutate(URL = ifelse(ID == 'Robbie Williams:Angels', 'https://open.spotify.com/embed/track/1M2nd8jNUkkwrc1dgBPTJz', 
                                      ifelse(ID == 'Sara Lov:Fountain', 'https://open.spotify.com/embed/track/12xDGs4NYCsoNKdHYnoZZr', 
@@ -243,8 +243,9 @@ SongsMostListened
 ![Screenshot_14](https://user-images.githubusercontent.com/90149200/157632885-a661933f-d1f9-4f25-8576-cb45f18e256e.jpg)
 
 
+Pour la construction du dernier graphique il faut établir la connexion spotify API afin d'obtenir le code d'autorisation qui va me permettre d'accéder les caractéristiques audio des artistes sélectionnés. 
 ```
-# Etablir la connexion spotify API afin d'obtenir le code d'autorisation
+#Préparation des données
 Sys.setenv(SPOTIFY_CLIENT_ID = '40798829f9cf4e028eea17da9f299abe')
 Sys.setenv(SPOTIFY_CLIENT_SECRET ='b14ce5c852de4975b20683b0c373393f')
 get_spotify_authorization_code()
@@ -276,16 +277,31 @@ emotionalQuadrant
 ![Screenshot_13](https://user-images.githubusercontent.com/90149200/157632574-6d78b4b0-648c-4492-a23d-00d2556a68bb.jpg)
 
 
-## Clustering K-means
+## Clustering k-means
 
 Clustering est une méthode de classification automatique dont le but est de créer des groupes (clusters) d'observations homogènes de sorte que les observations au sein d’un groupe soient les plus semblables possibles, alors que les groupes soient les plus différents possibles les uns des autres. 
 Dans le cadre de ce projet l'objectif de clustering est d'analyser la musique que j'écoute selon les caractéristiques audio de mes chansons préférées. Pour ce faire un échantillon représentatif sera crée principalement à partir de ma bibliothèque Spotify *myLibrary* i.e. chansons aimées. 
 
-Parmi les deux algorithmes de clustering les plus connus (k-means et classification hiérarchique) je recours à l'algorithme de K-means afin de réaliser cette analyse. Celui-ci repose sur la notion de distances entre observations. 
+Parmi les deux algorithmes de clustering les plus connus (k-means et classification hiérarchique) on a recours à l'algorithme de K-means afin de réaliser cette analyse. Celui-ci repose sur la notion de distances entre observations. On utilise généralement la distance euclidienne sur des données normalisées (si les échelles de valeurs des variables sont différentes). Elle se calcule somme suit : 
+
+![Screenshot_20](https://user-images.githubusercontent.com/90149200/157688931-400042c8-60da-4999-bf55-5bfdab03cc16.jpg)
+
+###### Présentation des variables sélectionnées pour l'analyse
+
+- **Acousticness**: Une mesure de confiance de 0,0 à 1,0 indiquant si la piste est acoustique. 1.0 représente une confiance élevée que la piste est acoustique.
+- **Danceability**: Danceability décrit à quel point une piste est appropriée pour la danse basée sur une combinaison d'éléments musicaux comprenant le tempo, la stabilité du rythme, la force du battement et la régularité générale. Une valeur de 0,0 est la moins dansable et 1,0 est la plus dansante.
+- **Energie**: L'énergie est une mesure de 0,0 à 1,0 et représente une mesure perceptive de l'intensité et de l'activité. En règle générale, les pistes énergiques sont rapides et bruyantes. Par exemple, le death metal a une énergie élevée, tandis qu'un prélude de Bach obtient un score bas sur l'échelle. Les caractéristiques perceptives contribuant à cet attribut comprennent la plage dynamique, le volume sonore perçu, le timbre, la fréquence d'apparition et l'entropie générale.
+- **Instrumentalness**: Prédit si une piste ne contient pas de voix. Les morceaux de rap ou de mots parlés sont clairement «vocaux». Plus la valeur de l'instrument est proche de 0, plus la piste est susceptible de ne contenir aucun contenu vocal. Les valeurs supérieures à 0,5 sont destinées à représenter des pistes instrumentales, mais la confiance est plus élevée lorsque la valeur s'approche de 1
+- **Liveness**: détecte la présence d'un public dans l'enregistrement. Des valeurs de vivacité plus élevées représentent une probabilité accrue que la piste ait été jouée en direct. Une valeur supérieure à 0,8 offre une forte probabilité que la piste soit en direct.
+- **Loudness**: le volume global d'une piste en décibels (dB). Les valeurs de sonie sont moyennées sur toute la piste et sont utiles pour comparer le volume relatif des pistes. Le volume est la qualité d'un son qui est le principal corrélat psychologique de la force physique (amplitude). Les valeurs sont généralement comprises entre -60 et 0 db.
+- **Speechiness**: Speechiness détecte la présence de mots prononcés dans une piste. Plus l'enregistrement est exclusivement de type vocal (par exemple, talk-show, livre audio, poésie), plus la valeur d'attribut est proche de 1,0. Les valeurs supérieures à 0,66 décrivent des pistes qui sont probablement entièrement constituées de mots prononcés. Les valeurs comprises entre 0,33 et 0,66 décrivent des pistes qui peuvent contenir à la fois de la musique et de la parole, en sections ou en couches, y compris des cas tels que la musique rap. Les valeurs inférieures à 0,33 représentent très probablement de la musique et d'autres pistes non vocales.
+- **Valence**: Une mesure de 0,0 à 1,0 décrivant la positivité musicale véhiculée par une piste. Les pistes à valence élevée semblent plus positives (par exemple, joyeuses, gaies, euphoriques), tandis que les pistes à faible valence semblent plus négatives (par exemple, tristes, déprimés, en colère).
+- **Tempo**: Le tempo global estimé d'une piste en battements par minute (BPM). Dans la terminologie musicale, le tempo est la vitesse ou le rythme d'un morceau donné et dérive directement de la durée moyenne du battement.
+
 
 ###### Préparation de l'échantillon
 D'abord, il faut obtenir les variables nécessaires, càd les caractéristiques audio des pistes qui se trouvent dans ma bibliothèque.
-Tant que la fonction *get_track_audio_features* ne fonctionne que pour une base de données limitée à 100 observations, la base de données *myLibrary* contenant 383 chansons est alors répartie en 4 tables. Ensuite, après avoir obtenu toutes les variables nécessaires 
+Tant que la fonction *get_track_audio_features* ne fonctionne que pour une base de données limitée à 100 observations, la table *myLibrary* contenant 383 chansons est alors découpée en 4 tables. Ensuite, on obtient toutes les variables nécessaires et crée une base. 
 ```
 dt <- myLibrary[c(1:100),]
 dt2 <- myLibrary[c(101:200),]
@@ -308,7 +324,7 @@ features <- merge(myLibrary[,c('ID','id')],features[,c('danceability', 'energy',
 
 
 
-Puis, je rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui sont également dans mon historique de streaming. Ainsi, parmi les 332 morceaux retrouvés dans les playlists j'ai pu ajouter 151 observations (chansons).
+Ensuite, on rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui sont également dans mon historique de streaming. Ainsi, parmi les 332 morceaux retrouvés dans les playlists j'ai pu ajouter 151 observations (chansons).
 
 ```
 playlist_uris = c('2EyrMzdCEzrJZroVISvpeH', '1Q5ShmHUpMqgMMsiYeSlnv', '21FgZfWciibMrQJUHAaDnM','37i9dQZF1DX2oc5aN4UDfD', '1rPzZa9xevryBnc5TKEcd1', '37i9dQZF1DWTwnEm1IYyoj', '37i9dQZF1DWUH2AzNQzWua', '37i9dQZF1DZ06evO0AGqf6')
@@ -316,15 +332,17 @@ new_features <- get_playlist_audio_features(username = '21fpb4vqdeiicsqeug75tiut
 #332 chansons
 
 
-new_features <- new_features %>% filter(track.name %in% data$trackName)                                                
-#151
+new_features <- new_features %>% filter(track.name %in% data$trackName) #151
 
 new_features <- new_features[,c('track.artists','track.name', 'track.id',
                                 'danceability', 'energy', 'loudness','speechiness','acousticness', 'instrumentalness','liveness', 'valence', 'tempo')]
 
 glimpse(new_features)
 ```
-Je termine la préparation de la base destinée à l'analyse par quelques manipulations de nettoyage de données. 
+![Screenshot_21](https://user-images.githubusercontent.com/90149200/157696204-5683d64f-8b0f-42d4-99c2-f92b8bb8deec.jpg)
+
+
+Je termine la préparation de la base destinée à l'analyse de clustering par quelques manipulations de nettoyage de données. 
 ```
 playlists_features = new_features %>% 
   mutate(track.artists=sapply(new_features$track.artists,'[[',3)) %>%
@@ -333,8 +351,11 @@ playlists_features = new_features %>%
   relocate(ID, .after=track.id) %>%
   rename('id' = 'track.id')
 
-df_features <- rbind(features, playlists_features) #529
+df_features <- rbind(features, playlists_features) #532
 ```
+
+![Screenshot_19](https://user-images.githubusercontent.com/90149200/157639209-4d7443eb-6a65-46ba-9b2c-24f2783b4379.jpg)
+
 ```
 duplicated(df_features)
 df_features <- unique(df_features) #504
@@ -345,16 +366,4 @@ df_clustering <- df_features[,c(3:11)] #on exclut id et ID pour selectionner que
 
 head(df_clustering)
 ```
-
-###### Présentation des variables sélectionnées pour l'analyse
-
-- **Acousticness**: Une mesure de confiance de 0,0 à 1,0 indiquant si la piste est acoustique. 1.0 représente une confiance élevée que la piste est acoustique.
-- **Danceability**: Danceability décrit à quel point une piste est appropriée pour la danse basée sur une combinaison d'éléments musicaux comprenant le tempo, la stabilité du rythme, la force du battement et la régularité générale. Une valeur de 0,0 est la moins dansable et 1,0 est la plus dansante.
-- **Energie**: L'énergie est une mesure de 0,0 à 1,0 et représente une mesure perceptive de l'intensité et de l'activité. En règle générale, les pistes énergiques sont rapides et bruyantes. Par exemple, le death metal a une énergie élevée, tandis qu'un prélude de Bach obtient un score bas sur l'échelle. Les caractéristiques perceptives contribuant à cet attribut comprennent la plage dynamique, le volume sonore perçu, le timbre, la fréquence d'apparition et l'entropie générale.
-- **Instrumentalness**: Prédit si une piste ne contient pas de voix. Les morceaux de rap ou de mots parlés sont clairement «vocaux». Plus la valeur de l'instrument est proche de 0, plus la piste est susceptible de ne contenir aucun contenu vocal. Les valeurs supérieures à 0,5 sont destinées à représenter des pistes instrumentales, mais la confiance est plus élevée lorsque la valeur s'approche de 1
-- **Liveness**: détecte la présence d'un public dans l'enregistrement. Des valeurs de vivacité plus élevées représentent une probabilité accrue que la piste ait été jouée en direct. Une valeur supérieure à 0,8 offre une forte probabilité que la piste soit en direct.
-- **Loudness**: le volume global d'une piste en décibels (dB). Les valeurs de sonie sont moyennées sur toute la piste et sont utiles pour comparer le volume relatif des pistes. Le volume est la qualité d'un son qui est le principal corrélat psychologique de la force physique (amplitude). Les valeurs sont généralement comprises entre -60 et 0 db.
-- **Speechiness**: Speechiness détecte la présence de mots prononcés dans une piste. Plus l'enregistrement est exclusivement de type vocal (par exemple, talk-show, livre audio, poésie), plus la valeur d'attribut est proche de 1,0. Les valeurs supérieures à 0,66 décrivent des pistes qui sont probablement entièrement constituées de mots prononcés. Les valeurs comprises entre 0,33 et 0,66 décrivent des pistes qui peuvent contenir à la fois de la musique et de la parole, en sections ou en couches, y compris des cas tels que la musique rap. Les valeurs inférieures à 0,33 représentent très probablement de la musique et d'autres pistes non vocales.
-- **Valence**: Une mesure de 0,0 à 1,0 décrivant la positivité musicale véhiculée par une piste. Les pistes à valence élevée semblent plus positives (par exemple, joyeuses, gaies, euphoriques), tandis que les pistes à faible valence semblent plus négatives (par exemple, tristes, déprimés, en colère).
-- **Tempo**: Le tempo global estimé d'une piste en battements par minute (BPM). Dans la terminologie musicale, le tempo est la vitesse ou le rythme d'un morceau donné et dérive directement de la durée moyenne du battement.
 
