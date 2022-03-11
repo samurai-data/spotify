@@ -65,7 +65,7 @@ rm(songs, artists)
 
 ## Nettoyage et d'autres opérations de traitement des données
 
-Je fusionne le nom de l'artiste et le titre de la chanson de chaque élément écouté pour créer une nouvelle variable *ID*. Je crée également la variable *URL* (les liens web qui permettent l'accès aux chansons sur Spotify) à partir de la variable *uri*. On s'en servira par la suite pendant la construction du tableau de bord sur le logiciel de visualisation des données *Tableau*.
+Je commence par la création de la variable *ID* (le nom de l'artiste et le titre de la chanson fusionnés) pour faciliter le traitement des données. La variable *URL* (les liens web qui permettent l'accès aux chansons sur Spotify) est également créée à partir de *uri* de chaque élément écouté. On s'en servira par la suite pendant la construction du tableau de bord sur le logiciel de visualisation des données *Tableau*.
 ```
 myLibrary <- myLibrary %>% mutate(ID = paste(myLibrary$artist, myLibrary$track, sep = ':')) %>% 
   mutate(URL = "https://open.spotify.com/embed/track/") %>%
@@ -186,7 +186,7 @@ heatmap
 ![Screenshot_16](https://user-images.githubusercontent.com/90149200/157633746-d751872f-687c-435b-934a-140b48143eb5.jpg)
 
 
-
+Est-ce que l'évolution de mon activité sur Spotify en semaine est différente de celle de week-ends ?
 ```
 #Line chart 
 dayType <- weekHour %>% 
@@ -257,7 +257,7 @@ favArtist4 <- get_artist_audio_features('Alai Oli')
 
 topFourArtists <- rbind(favArtist1, favArtist2, favArtist3, favArtist4)
 
-# PLOT EMOTIONAL QUADRANT TOP FOUR ARTISTS
+# PLOT EMOTIONAL QUADRANT TOP 4 ARTISTS
 emotionalQuadrant <- ggplot(data = topFourArtists, aes(x = valence, y = energy, color = artist_name)) +
   geom_jitter() +
   geom_vline(xintercept = 0.5) +
@@ -280,11 +280,21 @@ emotionalQuadrant
 ## Clustering k-means
 
 Clustering est une méthode de classification automatique dont le but est de créer des groupes (clusters) d'observations homogènes de sorte que les observations au sein d’un groupe soient les plus semblables possibles, alors que les groupes soient les plus différents possibles les uns des autres. 
-Dans le cadre de ce projet l'objectif de clustering est d'analyser la musique que j'écoute selon les caractéristiques audio de mes chansons préférées. Pour ce faire un échantillon représentatif sera crée principalement à partir de ma bibliothèque Spotify *myLibrary* i.e. chansons aimées. 
+Dans le cadre de ce projet l'objectif de clustering est d'analyser la musique que j'écoute selon les caractéristiques audio de mes chansons préférées. Pour ce faire, un échantillon représentatif sera crée principalement à partir de ma bibliothèque Spotify *myLibrary* i.e. chansons aimées. 
 
-Parmi les deux algorithmes de clustering les plus connus (k-means et classification hiérarchique) on a recours à l'algorithme de K-means afin de réaliser cette analyse. Celui-ci repose sur la notion de distances entre observations. On utilise généralement la distance euclidienne sur des données normalisées (si les échelles de valeurs des variables sont différentes). Elle se calcule somme suit : 
+Parmi les deux algorithmes de clustering les plus connus (k-means et classification hiérarchique) j'ai recours à l'algorithme de k-means afin de réaliser cette analyse. Celui-ci repose sur la notion de distances entre observations. On utilise généralement la distance euclidienne sur des données normalisées (si les échelles de valeurs des variables sont différentes). Elle se calcule comme suit : 
 
 ![Screenshot_20](https://user-images.githubusercontent.com/90149200/157688931-400042c8-60da-4999-bf55-5bfdab03cc16.jpg)
+
+La variation intra classe totale est alors définie comme la somme des distances euclidiennes entre chaque observation et son centroïde correspondant:
+
+
+![Screenshot_28](https://user-images.githubusercontent.com/90149200/157912273-357a954f-5f70-4b42-b420-385836f630c1.jpg)
+
+[*source*](https://bradleyboehmke.github.io/HOML/kmeans.html)
+
+L'idée principale de k-means est de construire les clusters de telle sorte que la variation intraclasse soit minimisée. 
+
 
 ###### Présentation des variables sélectionnées pour l'analyse
 
@@ -300,8 +310,8 @@ Parmi les deux algorithmes de clustering les plus connus (k-means et classificat
 
 
 ###### Préparation de l'échantillon
-D'abord, il faut obtenir les variables nécessaires, càd les caractéristiques audio des pistes qui se trouvent dans ma bibliothèque.
-Tant que la fonction *get_track_audio_features* ne fonctionne que pour une base de données limitée à 100 observations, la table *myLibrary* contenant 383 chansons est alors découpée en 4 tables. Ensuite, on obtient toutes les variables nécessaires et crée une base. 
+D'abord, il faut obtenir les variables nécessaires, càd les fonctionnalités audio des pistes qui se trouvent dans ma bibliothèque.
+Tant que la fonction *get_track_audio_features* ne fonctionne que pour une base de données limitée à 100 observations, la table *myLibrary* contenant 383 chansons est alors découpée en 4 tables. Ensuite, j'obtient toutes les variables nécessaires et crée une base. 
 ```
 dt <- myLibrary[c(1:100),]
 dt2 <- myLibrary[c(101:200),]
@@ -324,7 +334,7 @@ features <- merge(myLibrary[,c('ID','id')],features[,c('danceability', 'energy',
 
 
 
-Ensuite, on rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui sont également dans mon historique de streaming. Ainsi, parmi les 332 morceaux retrouvés dans les playlists j'ai pu ajouter 150 observations (chansons).
+Ensuite, je rajoute manuellement quelques playlists que j'écoute souvent pour élargir la taille de l'échantillon, puisque k-means est le plus efficace avec les échantillons de grande taille. Un filtre est appliqué afin de sélectionner les observations qui se trouvent également dans mon historique de streaming. Ainsi, parmi les 331 morceaux retrouvés dans les playlists j'ai pu ajouter 150 observations (chansons).
 
 ```
 playlist_uris = c('2EyrMzdCEzrJZroVISvpeH', '1Q5ShmHUpMqgMMsiYeSlnv', '21FgZfWciibMrQJUHAaDnM','37i9dQZF1DX2oc5aN4UDfD', '1rPzZa9xevryBnc5TKEcd1', '37i9dQZF1DWTwnEm1IYyoj', '37i9dQZF1DWUH2AzNQzWua', '37i9dQZF1DZ06evO0AGqf6')
@@ -356,7 +366,7 @@ df_features <- rbind(features, playlists_features) #533
 ![Screenshot_19](https://user-images.githubusercontent.com/90149200/157639209-4d7443eb-6a65-46ba-9b2c-24f2783b4379.jpg)
 
 
-Après avoir détecté la présence des doublons on les retire. De plus, On exclut les variables id et ID dans le but d'isoler les variables quantitatives pour l'analyse.
+Après avoir détecté la présence des doublons je les retire. De plus, j'exclut les variables id et ID dans le but d'isoler les variables quantitatives pour l'analyse.
 ```
 #éliminer les doublons
 duplicated(df_features)
@@ -371,10 +381,10 @@ head(df_clustering)
 
 ###### Prédiagnostique et prétraitement de la base
 
-Maintenant on doit vérifier si les données manquantes sont présentes dans la table et si elle contient les variables qui sont fortement corrélées entre eux. Cette vérification est nécessaire avant la réalisation de l'analyse de clustering. 
+Maintenant je dois vérifier si les données manquantes sont présentes dans la table et si elle contient les variables qui sont fortement corrélées entre eux. Cette vérification est nécessaire avant la réalisation de l'analyse de clustering, puisque l'efficacité de cette technique n'est pas garantie en présence de ces éléments. 
 ```
 #Vérifier la présence des données manquantes
-colSums(is.na(df_clustering))
+colSums(is.na(df_clustering)) #pas de données manquantes
 #Matrice de corrélation
 cor = cor(df_clustering)
 #corrélogramme pour visualiser la matrice de corrélation
@@ -383,7 +393,7 @@ corrplot(cor, method = 'color')
 ```
 ![Screenshot_24](https://user-images.githubusercontent.com/90149200/157746077-6157cf3b-58a5-4926-ab24-d59f1ae73b97.jpg)
 
-Ensuite, on doit standardiser les variables pour assurer la comparabilité de ses valeurs dont les échelles sont différentes. 
+Ensuite, il faut standardiser les variables pour assurer la comparabilité de ses valeurs dont les échelles sont différentes. 
 ```
 #Standardisation (normalisation) des variables
 df_clustering_scaled <- data.frame(scale(df_clustering))
@@ -394,17 +404,27 @@ Une autre étape importante est d'évaluer la tendance de mes données au partit
 library(hopkins)
 h <- get_clust_tendency(df_clustering_scaled, n=5)
 h$hopkins_stat
-#the data is highly clusterable
+#hopkins_stat = 0,83 : highly clusterable data
 ```
-J'en déduis alors que mes données ont une tendance élevée au partitionnement ce qui me permet de les, finalement, regrouper. 
+La statistique de Hopkins est proche de 1. J'en déduis alors que mes données ont une tendance élevée au partitionnement ce qui me permet de les, finalement, regrouper. 
 
+La dernière étape avant le clustering est de déterminer le nombre optimal des clusters. Parmi les nombreuses méthodes qui existent j'ai recours à celle qui est la plus connue et utilisée: la méthode du coude. Elle nous permet de visualiser le nombre differents des clusters en fonction de l'inertie (variation totale intra classe). 
+```
+#nombre des clusters optimal
+library(NbClust)
+#Elbow method
+fviz_nbclust(df_clustering_scaled, kmeans, method = "wss") +
+  labs(subtitle = "Elbow method") # add subtitle
+```
 
+![Screenshot_27](https://user-images.githubusercontent.com/90149200/157909254-37693080-40f5-4f77-8f14-35e4e05d19dd.jpg)
+
+En suivant la logique de la méthode de k-means on veut minimiser l'inertie ce qui m'incite à choisir k = 5. 
 ```
 model <- kmeans(df_clustering_scaled, centers = 5)
-model
 clusters <-  model$centers
-model$size
 model$betweenss/model$totss
+#visualisation des clusters
 fviz_cluster(model, data = df_clustering_scaled,
              geom = "point",
              ellipse.type = "convex", 
@@ -415,7 +435,7 @@ fviz_cluster(model, data = df_clustering_scaled,
 
 
 ```
-#Visualiser dif profiles des clusters
+#Visualiser différents profils des clusters
 df_features$cluster <- model$cluster
 cluster_prof <- df_features %>% group_by(cluster) %>% summarise_if(is.numeric,mean)
 ```
