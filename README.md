@@ -369,8 +369,8 @@ head(df_clustering)
 ```
 ![Screenshot_22](https://user-images.githubusercontent.com/90149200/157744600-f50155fd-5319-4af0-97c1-c2d11baa4c7b.jpg)
 
-
-Maintenant on doit vérifier si les données manquantes sont présentes 
+****** Prédiagnostique et prétraitement de la base
+Maintenant on doit vérifier si les données manquantes sont présentes dans la table et si elle contient les variables qui sont fortement corrélées entre eux. Cette vérification est nécessaire avant la réalisation de l'analyse de clustering. 
 ```
 #Vérifier la présence des données manquantes
 colSums(is.na(df_clustering))
@@ -380,6 +380,38 @@ cor = cor(df_clustering)
 library(corrplot)
 corrplot(cor, method = 'color') 
 ```
-
 ![Screenshot_24](https://user-images.githubusercontent.com/90149200/157746077-6157cf3b-58a5-4926-ab24-d59f1ae73b97.jpg)
 
+Ensuite, on doit standardiser les variables pour assurer la comparabilité de ses valeurs dont les échelles sont différentes. 
+```
+#Standardisation (normalisation) des variables
+df_clustering_scaled <- data.frame(scale(df_clustering))
+```
+
+Une autre étape importante est d'évaluer la tendance de mes données au partitionnement. Pour cela j'utilise la statistique de Hopkins. 
+```
+library(hopkins)
+h <- get_clust_tendency(df_clustering_scaled, n=5)
+h$hopkins_stat
+#the data is highly clusterable
+```
+J'en déduis alors que mes données ont une tendance élevée au partitionnement ce qui me permet de les, finalement, regrouper. 
+
+
+```
+model <- kmeans(df_clustering_scaled, centers = 5)
+model
+clusters <-  model$centers
+model$size
+model$betweenss/model$totss
+fviz_cluster(model, data = df_clustering_scaled,
+             geom = "point",
+             ellipse.type = "convex", 
+             ggtheme = theme_bw())
+
+#Visualiser dif profiles des clusters
+df_features$cluster <- model$cluster
+cluster_prof <- df_features %>% group_by(cluster) %>% summarise_if(is.numeric,mean)
+glimpse(df_features)
+
+```
