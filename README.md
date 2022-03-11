@@ -440,3 +440,5 @@ df_features$cluster <- model$cluster
 cluster_prof <- df_features %>% group_by(cluster) %>% summarise_if(is.numeric,mean)
 ```
 ![Screenshot_26](https://user-images.githubusercontent.com/90149200/157882096-6220ea5b-4a9c-4aea-931d-11f741ea2dd4.jpg)
+
+
