@@ -443,9 +443,9 @@ cluster_prof <- df_features %>% group_by(cluster) %>% summarise_if(is.numeric,me
 ```
 ![Screenshot_26](https://user-images.githubusercontent.com/90149200/157882096-6220ea5b-4a9c-4aea-931d-11f741ea2dd4.jpg)
 
-Cluster 1: Les pistes plutôt appropriées pour la danse et relativement positives
-Cluster 2: Acoustiques, calmes et instrumentales
-Cluster 3: Energiques avec le rythme assez rapide
-Cluster 4: Acoustiques, vocales et avec le taux de valence assez bas donc négatives
-Cluster 5: Les pistes très énergiques jouées très probablement en direct (concerts)
+- Cluster 1: Les pistes plutôt appropriées pour la danse et relativement positives
+- Cluster 2: Acoustiques, calmes et instrumentales
+- Cluster 3: Energiques avec le rythme assez rapide
+- Cluster 4: Acoustiques, vocales et avec le taux de valence assez bas donc négatives
+- Cluster 5: Les pistes très énergiques jouées très probablement en direct (concerts)
 
