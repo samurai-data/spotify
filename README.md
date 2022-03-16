@@ -381,7 +381,7 @@ head(df_clustering)
 
 ###### Prédiagnostique et prétraitement de la base
 
-Maintenant je dois vérifier si les données manquantes sont présentes dans la table et si cette dernière contient les variables qui sont fortement corrélées entre elles. Cette vérification est nécessaire avant la réalisation de l'analyse de clustering, puisque l'efficacité de cette technique n'est pas garantie en présence de ces éléments.
+Maintenant je dois vérifier si les données manquantes sont présentes dans la table et si cette dernière contient les variables qui sont fortement corrélées entre elles. Cette vérification est nécessaire avant la réalisation de clustering, puisque l'efficacité de cette technique n'est pas garantie en présence de ces éléments.
 ```
 #Vérifier la présence des données manquantes
 colSums(is.na(df_clustering)) #pas de données manquantes
@@ -393,7 +393,7 @@ corrplot(cor, method = 'color')
 ```
 ![Screenshot_24](https://user-images.githubusercontent.com/90149200/157746077-6157cf3b-58a5-4926-ab24-d59f1ae73b97.jpg)
 
-On remarque que l'absence de données manquante 
+On constate l'absence de données manquantes, mais il y a une forte corrélation entre acousticness et energy mais j'ai décidé quand meme de garder ces variables puisque la suppression de l'une ou l'autre n'a pas impacté de manière significative la qualité du modèle. 
 
 Ensuite, il faut standardiser les variables pour assurer la comparabilité de ses valeurs dont les échelles sont différentes. 
 ```
@@ -443,4 +443,9 @@ cluster_prof <- df_features %>% group_by(cluster) %>% summarise_if(is.numeric,me
 ```
 ![Screenshot_26](https://user-images.githubusercontent.com/90149200/157882096-6220ea5b-4a9c-4aea-931d-11f741ea2dd4.jpg)
 
+Cluster 1: Les pistes plutôt appropriées pour la danse et relativement positives
+Cluster 2: Acoustiques, calmes et instrumentales
+Cluster 3: Energiques avec le rythme assez rapide
+Cluster 4: Acoustiques, vocales et avec le taux de valence assez bas donc négatives
+Cluster 5: Les pistes très énergiques jouées très probablement en direct (concerts)
 
