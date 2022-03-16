@@ -381,7 +381,7 @@ head(df_clustering)
 
 ###### Prédiagnostique et prétraitement de la base
 
-Maintenant je dois vérifier si les données manquantes sont présentes dans la table et si elle contient les variables qui sont fortement corrélées entre eux. Cette vérification est nécessaire avant la réalisation de l'analyse de clustering, puisque l'efficacité de cette technique n'est pas garantie en présence de ces éléments. 
+Maintenant je dois vérifier si les données manquantes sont présentes dans la table et si cette dernière contient les variables qui sont fortement corrélées entre elles. Cette vérification est nécessaire avant la réalisation de l'analyse de clustering, puisque l'efficacité de cette technique n'est pas garantie en présence de ces éléments.
 ```
 #Vérifier la présence des données manquantes
 colSums(is.na(df_clustering)) #pas de données manquantes
@@ -392,6 +392,8 @@ library(corrplot)
 corrplot(cor, method = 'color') 
 ```
 ![Screenshot_24](https://user-images.githubusercontent.com/90149200/157746077-6157cf3b-58a5-4926-ab24-d59f1ae73b97.jpg)
+
+On remarque que l'absence de données manquante 
 
 Ensuite, il faut standardiser les variables pour assurer la comparabilité de ses valeurs dont les échelles sont différentes. 
 ```
